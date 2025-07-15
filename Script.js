@@ -1,70 +1,51 @@
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #121212;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
+let timer;
+let startTime;
+let elapsedTime = 0;
+let isRunning = false;
+
+function updateDisplay() {
+  const time = Date.now() - startTime + elapsedTime;
+  const milliseconds = Math.floor((time % 1000) / 10);
+  const seconds = Math.floor((time / 1000) % 60);
+  const minutes = Math.floor((time / (1000 * 60)) % 60);
+  const hours = Math.floor(time / (1000 * 60 * 60));
+  document.getElementById("time").textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds)}`;
 }
 
-h1 {
-  margin-bottom: 20px;
+function pad(unit) {
+  return unit < 10 ? "0" + unit : unit;
 }
 
-.stopwatch {
-  background: #1e1e2f;
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-  text-align: center;
+function startStopwatch() {
+  if (isRunning) return;
+  startTime = Date.now();
+  timer = setInterval(updateDisplay, 10);
+  isRunning = true;
 }
 
-#time {
-  font-size: 2.8rem;
-  margin-bottom: 1rem;
-  letter-spacing: 1px;
+function pauseStopwatch() {
+  if (!isRunning) return;
+  clearInterval(timer);
+  elapsedTime += Date.now() - startTime;
+  isRunning = false;
 }
 
-.buttons {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 1rem;
+function resetStopwatch() {
+  clearInterval(timer);
+  elapsedTime = 0;
+  isRunning = false;
+  document.getElementById("time").textContent = "00:00:00.00";
+  document.getElementById("lapList").innerHTML = "";
 }
 
-button {
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  background-color: #00adb5;
-  color: white;
-  transition: background-color 0.2s;
-}
-
-button:hover {
-  background-color: #00ffff;
-}
-
-.laps {
-  max-height: 200px;
-  overflow-y: auto;
-  text-align: left;
-  margin-top: 1rem;
-}
-
-.laps ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.laps li {
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.95rem;
+function lapTime() {
+  if (!isRunning) return;
+  const time = Date.now() - startTime + elapsedTime;
+  const milliseconds = Math.floor((time % 1000) / 10);
+  const seconds = Math.floor((time / 1000) % 60);
+  const minutes = Math.floor((time / (1000 * 60)) % 60);
+  const hours = Math.floor(time / (1000 * 60 * 60));
+  const lapItem = document.createElement("li");
+  lapItem.textContent = `Lap - ${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds)}`;
+  document.getElementById("lapList").appendChild(lapItem);
 }
